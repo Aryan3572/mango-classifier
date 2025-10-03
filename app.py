@@ -1,5 +1,6 @@
 # app.py
 from flask import Flask, request, jsonify
+from flask_cors import CORS   # <-- ADD THIS
 import tensorflow as tf
 import numpy as np
 import json
@@ -7,6 +8,8 @@ import io
 from PIL import Image
 
 app = Flask(__name__)
+CORS(app)  # <-- ENABLE CORS
+
 model = tf.keras.models.load_model("best_model.h5")
 with open("classes.json", "r", encoding="utf8") as f:
     class_names = json.load(f)
@@ -14,7 +17,7 @@ with open("classes.json", "r", encoding="utf8") as f:
 
 def preprocess_image_bytes(b):
     img = Image.open(io.BytesIO(b)).convert("RGB").resize((224, 224))
-    arr = np.array(img)/255.0
+    arr = np.array(img)
     return np.expand_dims(arr, axis=0)
 
 
