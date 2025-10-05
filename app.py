@@ -6,11 +6,12 @@ import numpy as np
 import json
 import io
 from PIL import Image
+import os
 
 app = Flask(__name__)
 
 # ✅ Enable CORS only for your deployed frontend
-CORS(app, origins=["https://mango-classifier-2.onrender.com"])
+CORS(app, origins=["https://mango-classifier-3.onrender.com"])
 
 # Load the trained model
 model = tf.keras.models.load_model("best_model.h5")
@@ -53,5 +54,6 @@ def predict():
 
 
 if __name__ == "__main__":
-    # Production host and port
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    # Use Render's assigned port
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=True, host="0.0.0.0", port=port)
