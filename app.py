@@ -11,7 +11,8 @@ app = Flask(__name__)
 
 # ✅ Enable CORS for all origins (safe for testing)
 # You can restrict to frontend URL later
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, origins=["https://mango-classifier-3.onrender.com"])
+
 
 # Load model and classes
 model = tf.keras.models.load_model("best_model.h5")
