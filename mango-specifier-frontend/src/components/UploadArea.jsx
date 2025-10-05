@@ -5,16 +5,12 @@ export default function UploadArea({ onResult }) {
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // ⬇️ Change this to your Python backend port
-  const BACKEND_URL = "http://127.0.0.1:5000/predict"; // Flask
-  // const BACKEND_URL = "http://127.0.0.1:8000/predict"; // FastAPI
+  const BACKEND_URL = `${import.meta.env.VITE_BACKEND_URL}/predict`;
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setSelectedFile(file);
-    if (file) {
-      setPreview(URL.createObjectURL(file));
-    }
+    if (file) setPreview(URL.createObjectURL(file));
   };
 
   const handleUpload = async () => {
@@ -47,28 +43,42 @@ export default function UploadArea({ onResult }) {
   };
 
   return (
-    <div className="flex flex-col items-center gap-4 p-6 border-2 border-dashed rounded-2xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-2xl transition">
+    <div className="flex flex-col items-center gap-5 p-8 border-2 border-dashed rounded-3xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-2xl transition-all duration-300 w-full max-w-lg mx-auto">
+      <label className="w-full text-sm font-medium text-gray-700 dark:text-gray-300 text-center">
+        Choose an image of a mango 🍋
+      </label>
       <input
         type="file"
         accept="image/*"
         onChange={handleFileChange}
-        className="block w-full text-sm text-gray-500 dark:text-gray-300"
+        className="block w-full text-sm text-gray-700 dark:text-gray-300 
+          file:mr-4 file:py-2 file:px-5 file:rounded-lg file:border-0 
+          file:text-sm file:font-semibold 
+          file:bg-gradient-to-r file:from-yellow-400 file:to-orange-500 file:text-white 
+          hover:file:scale-105 transform transition-all duration-300"
       />
 
       {preview && (
-        <img
-          src={preview}
-          alt="preview"
-          className="w-40 h-40 object-cover rounded-lg border shadow"
-        />
+        <div className="mt-4">
+          <img
+            src={preview}
+            alt="Preview"
+            className="w-48 h-48 mx-auto rounded-xl border shadow-lg hover:shadow-2xl hover:scale-105 transition-transform duration-300"
+          />
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+            {selectedFile?.name}
+          </p>
+        </div>
       )}
 
       <button
         onClick={handleUpload}
         disabled={loading}
-        className="px-6 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-lg shadow-lg hover:scale-105 transition disabled:opacity-50"
+        className="px-8 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 
+          text-white rounded-xl shadow-lg hover:shadow-2xl hover:scale-105 
+          transform transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed mt-4"
       >
-        {loading ? "🔄 Analyzing..." : "Upload & Predict"}
+        {loading ? "🔄 Predicting..." : "Upload & Predict"}
       </button>
     </div>
   );

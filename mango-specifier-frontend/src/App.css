@@ -1,42 +1,31 @@
+/* 🍋 Mango Specifier – Custom Base Styles */
+
+/* Keep root centered but minimal since Tailwind handles layout */
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  @apply flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-gray-900 dark:to-gray-800 transition-all duration-700;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Remove old unused Vite styles */
+.logo, .card, .read-the-docs {
+  @apply hidden;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Subtle glow for main header */
+.mango-title {
+  @apply text-4xl font-extrabold bg-gradient-to-r from-yellow-500 to-orange-600 bg-clip-text text-transparent drop-shadow-lg animate-pulse;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+/* File input button styling (backup if Tailwind class fails) */
+input[type="file"]::file-selector-button {
+  @apply bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-semibold px-4 py-2 rounded-lg cursor-pointer transition-all duration-300 hover:scale-105;
 }
 
-.card {
-  padding: 2em;
+/* Smooth transitions for light/dark mode toggle */
+button {
+  @apply transition-all duration-300 ease-in-out;
 }
 
-.read-the-docs {
-  color: #888;
+/* Shadow hover effects */
+.hover-glow {
+  @apply hover:shadow-2xl hover:scale-105 transform transition-all duration-300;
 }
