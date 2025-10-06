@@ -5,7 +5,9 @@ export default function UploadArea({ onResult }) {
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const BACKEND_URL = `${import.meta.env.VITE_BACKEND_URL}/predict`;
+  // Ensure VITE_BACKEND_URL is a base URL (no trailing slash, no /predict)
+  const BASE = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+  const BACKEND_URL = `${BASE.replace(/\/$/, "")}/predict`; // safe concat
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -21,22 +23,32 @@ export default function UploadArea({ onResult }) {
 
     try {
       setLoading(true);
+      console.log("Uploading to:", BACKEND_URL);
+
       const res = await fetch(BACKEND_URL, {
         method: "POST",
         body: formData,
       });
 
-      if (!res.ok) throw new Error("Prediction failed");
+      console.log("Response status:", res.status);
+      if (!res.ok) {
+        const text = await res.text();
+        console.error("Server returned non-OK:", res.status, text);
+        throw new Error(`Prediction failed: ${res.status}`);
+      }
       const data = await res.json();
 
+      // data must contain mangoType and confidence (see backend changes below)
       onResult({
         ...data,
         fileName: selectedFile.name,
         image: preview,
       });
     } catch (err) {
-      console.error(err);
-      alert("❌ Could not connect to backend. Make sure Python backend is running!");
+      console.error("Upload error:", err);
+      alert(
+        "❌ Could not connect to backend or prediction failed. Check console and backend logs."
+      );
     } finally {
       setLoading(false);
     }
