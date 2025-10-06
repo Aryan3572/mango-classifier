@@ -11,10 +11,13 @@ app = Flask(__name__)
 
 # Frontend origin (for Render or local)
 FRONTEND_ORIGIN = os.environ.get(
-    "FRONTEND_ORIGIN", "https://mango-classifier-3.onrender.com")
+    "FRONTEND_ORIGIN", "https://mango-classifier-3.onrender.com"
+)
 
-# Enable CORS globally
-CORS(app, origins=[FRONTEND_ORIGIN])
+# ✅ Enable CORS globally with proper configuration
+CORS(app, resources={r"/*": {
+    "origins": FRONTEND_ORIGIN}},
+    supports_credentials=True)
 
 # Model and class paths
 MODEL_PATH = os.environ.get("MODEL_PATH", "final_model.keras")
