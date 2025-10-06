@@ -15,7 +15,7 @@ FRONTEND_ORIGIN = os.environ.get(
 
 # Allow only the front-end origin for security (or use "*" temporarily)
 CORS(app, resources={r"/predict": {
-    "origins": FRONTEND_ORIGIN}}, supports_credentials=False)
+    "origins": FRONTEND_ORIGIN}}, supports_credentials=True)
 
 MODEL_PATH = os.environ.get("MODEL_PATH", "final_model.keras")
 CLASSES_PATH = os.environ.get("CLASSES_PATH", "classes.json")
@@ -68,6 +68,7 @@ def health():
 @app.route("/predict", methods=["OPTIONS"])
 def predict_options():
     return add_cors_headers(make_response("", 204))
+
 
 # prediction endpoint
 
