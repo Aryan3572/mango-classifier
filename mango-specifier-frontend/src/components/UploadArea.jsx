@@ -8,6 +8,7 @@ export default function UploadArea({ onResult }) {
   // Ensure VITE_BACKEND_URL is a base URL (no trailing slash, no /predict)
   const BASE = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
   const BACKEND_URL = `${BASE.replace(/\/$/, "")}/predict`; // safe concat
+  console.log("uploading to : ",BACKEND_URL);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];

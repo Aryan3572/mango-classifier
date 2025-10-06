@@ -10,7 +10,8 @@ import tensorflow as tf
 app = Flask(__name__)
 
 # Set FRONTEND_ORIGIN to your exact frontend URL or "*" for quick testing
-FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "*")
+FRONTEND_ORIGIN = os.environ.get(
+    "FRONTEND_ORIGIN", "https://mango-classifier-3.onrender.com")
 
 # Allow only the front-end origin for security (or use "*" temporarily)
 CORS(app, resources={r"/predict": {
