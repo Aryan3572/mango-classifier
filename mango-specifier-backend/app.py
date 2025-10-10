@@ -14,10 +14,12 @@ FRONTEND_ORIGIN = os.environ.get(
     "FRONTEND_ORIGIN", "https://mango-classifier-3.onrender.com"
 )
 
+app.logger.info(f"FRONTEND_ORIGIN is set to: {FRONTEND_ORIGIN}")
+
+
 # ✅ Enable CORS globally with proper configuration
 CORS(app, resources={r"/*": {
-    "origins": FRONTEND_ORIGIN}},
-    supports_credentials=True)
+    "origins": FRONTEND_ORIGIN}})
 
 # Model and class paths
 MODEL_PATH = os.environ.get("MODEL_PATH", "final_model.keras")
