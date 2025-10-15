@@ -5,14 +5,13 @@ from flask_cors import CORS
 from PIL import Image
 import numpy as np
 import tensorflow as tf
+from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 
 app = Flask(__name__)
 
 # -------------------
 # Environment Variables
 # -------------------
-
-
 FRONTEND_ORIGIN = os.environ.get(
     "FRONTEND_ORIGIN", "https://mango-classifier-3.onrender.com"
 )
@@ -22,8 +21,6 @@ CLASSES_PATH = os.environ.get("CLASSES_PATH", "classes.json")
 # -------------------
 # Enable CORS
 # -------------------
-
-
 CORS(app, origins=FRONTEND_ORIGIN)
 app.logger.info(f"✅ CORS enabled for: {FRONTEND_ORIGIN}")
 
@@ -65,17 +62,23 @@ def predict():
 
     file = request.files["file"]
     try:
+        # -------------------
         # Preprocess image
+        # -------------------
         image = Image.open(file.stream).convert("RGB").resize((224, 224))
-        img_array = np.expand_dims(np.array(image) / 255.0, axis=0)
+        img_array = np.expand_dims(np.array(image), axis=0)
+        img_array = preprocess_input(img_array)  # MobileNetV2 preprocessing
 
         if model is None:
             return jsonify({"error": "Model not loaded"}), 500
 
-        preds = model.predict(img_array)
+        # -------------------
+        # Prediction
+        # -------------------
+        preds = model.predict(img_array, verbose=0)
         idx = int(np.argmax(preds))
 
-        # ✅ Handle classes as list or dict
+        # Handle classes as list or dict
         if isinstance(classes, list):
             label = classes[idx] if idx < len(classes) else str(idx)
         else:
