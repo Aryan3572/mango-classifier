@@ -5,7 +5,6 @@ from flask_cors import CORS
 from PIL import Image
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 
 app = Flask(__name__)
 
@@ -63,11 +62,10 @@ def predict():
     file = request.files["file"]
     try:
         # -------------------
-        # Preprocess image
+        # Preprocess image (match training)
         # -------------------
         image = Image.open(file.stream).convert("RGB").resize((224, 224))
-        img_array = np.expand_dims(np.array(image), axis=0)
-        img_array = preprocess_input(img_array)  # MobileNetV2 preprocessing
+        img_array = np.expand_dims(np.array(image) / 255.0, axis=0)
 
         if model is None:
             return jsonify({"error": "Model not loaded"}), 500
@@ -76,6 +74,8 @@ def predict():
         # Prediction
         # -------------------
         preds = model.predict(img_array, verbose=0)
+        app.logger.info(f"Raw prediction scores: {preds}")
+
         idx = int(np.argmax(preds))
 
         # Handle classes as list or dict
