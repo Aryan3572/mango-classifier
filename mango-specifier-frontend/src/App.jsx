@@ -6,7 +6,6 @@ function App() {
   const [result, setResult] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
 
-  // Apply dark mode to the <html> element
   useEffect(() => {
     if (darkMode) document.documentElement.classList.add("dark");
     else document.documentElement.classList.remove("dark");
@@ -21,7 +20,6 @@ function App() {
       }`}
     >
       <div className="w-full max-w-2xl p-8">
-        {/* Header */}
         <div className="flex justify-between items-center mb-10">
           <h1 className="text-4xl font-extrabold bg-gradient-to-r from-yellow-500 to-orange-600 bg-clip-text text-transparent drop-shadow-lg animate-pulse">
             🥭 Mango Specifier
@@ -34,10 +32,7 @@ function App() {
           </button>
         </div>
 
-        {/* Upload Section */}
         <UploadArea onResult={setResult} />
-
-        {/* Result Section */}
         {result && <ResultCard prediction={result} />}
       </div>
     </div>
