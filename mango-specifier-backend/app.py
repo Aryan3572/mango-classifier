@@ -1,30 +1,25 @@
-# app.py
 import os
 import json
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask import Flask, request, jsonify, send_from_directory
 from PIL import Image
 import numpy as np
 import tensorflow as tf
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static", static_url_path="/")
 
-# Frontend origin (for Render or local)
-FRONTEND_ORIGIN = os.environ.get(
-    "FRONTEND_ORIGIN", "https://mango-classifier-3.onrender.com"
-)
+# ✅ If deploying both frontend & backend on same Render app
+# Put your built React frontend files in /static after build
 
-# ✅ Enable CORS for both frontend and local testing
-CORS(app, resources={r"/*": {"origins": [
-    "https://mango-classifier-3.onrender.com",
-    "http://localhost:5173",
-]}}, supports_credentials=True)
+# Example for serving frontend (optional if frontend hosted separately)
 
-app.logger.info(
-    "✅ CORS enabled for: https://mango-classifier-3.onrender.com")
 
+@app.route("/")
+def serve_index():
+    return send_from_directory(app.static_folder, "index.html")
 
 # Model and class paths
+
+
 MODEL_PATH = os.environ.get("MODEL_PATH", "final_model.keras")
 CLASSES_PATH = os.environ.get("CLASSES_PATH", "classes.json")
 
@@ -50,7 +45,8 @@ def health():
     return jsonify({"status": "ok"}), 200
 
 
-@app.route("/predict", methods=["POST"])
+# ✅ No CORS needed since both are same-origin under Render
+@app.route("/api/predict", methods=["POST"])
 def predict():
     if "file" not in request.files:
         return jsonify({"error": "no file in request"}), 400

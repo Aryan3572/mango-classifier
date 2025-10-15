@@ -6,7 +6,7 @@ function App() {
   const [result, setResult] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
 
-  // Apply dark mode class to <html>
+  // Apply dark mode to the <html> element
   useEffect(() => {
     if (darkMode) document.documentElement.classList.add("dark");
     else document.documentElement.classList.remove("dark");

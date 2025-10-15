@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: mango-classifier-3
+    env: static
+    staticPublishPath: build          # adjust if your build output folder differs
+    buildCommand: npm run build       # adjust if you use yarn or different script
+    routes:
+      - type: rewrite
+        source: /predict
+        destination: https://mango-classifier-02.onrender.com/predict
+      # If you use /api/predict, add:
+      - type: rewrite
+        source: /api/predict
+        destination: https://mango-classifier-02.onrender.com/predict

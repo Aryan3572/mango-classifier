@@ -5,10 +5,8 @@ export default function UploadArea({ onResult }) {
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Ensure VITE_BACKEND_URL is a base URL (no trailing slash, no /predict)
-  const BASE = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
-  const BACKEND_URL = `${BASE.replace(/\/$/, "")}/predict`; // safe concat
-  console.log("uploading to : ",BACKEND_URL);
+  // ✅ Use a relative path so the browser uses the frontend origin (no CORS)
+  const BACKEND_URL = "/predict";
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -24,7 +22,7 @@ export default function UploadArea({ onResult }) {
 
     try {
       setLoading(true);
-      console.log("Uploading to:", BACKEND_URL);
+      console.log("📤 Uploading to:", BACKEND_URL);
 
       const res = await fetch(BACKEND_URL, {
         method: "POST",
@@ -32,24 +30,24 @@ export default function UploadArea({ onResult }) {
       });
 
       console.log("Response status:", res.status);
+
       if (!res.ok) {
         const text = await res.text();
         console.error("Server returned non-OK:", res.status, text);
         throw new Error(`Prediction failed: ${res.status}`);
       }
+
       const data = await res.json();
 
-      // data must contain mangoType and confidence (see backend changes below)
+      // ✅ Update parent with result
       onResult({
         ...data,
         fileName: selectedFile.name,
         image: preview,
       });
     } catch (err) {
-      console.error("Upload error:", err);
-      alert(
-        "❌ Could not connect to backend or prediction failed. Check console and backend logs."
-      );
+      console.error("❌ Upload error:", err);
+      alert("Could not connect to backend or prediction failed. Check console and backend logs.");
     } finally {
       setLoading(false);
     }
@@ -58,8 +56,9 @@ export default function UploadArea({ onResult }) {
   return (
     <div className="flex flex-col items-center gap-5 p-8 border-2 border-dashed rounded-3xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-2xl transition-all duration-300 w-full max-w-lg mx-auto">
       <label className="w-full text-sm font-medium text-gray-700 dark:text-gray-300 text-center">
-        Choose an image of a mango 🍋
+        Choose an image of a mango 🥭
       </label>
+
       <input
         type="file"
         accept="image/*"
@@ -72,7 +71,7 @@ export default function UploadArea({ onResult }) {
       />
 
       {preview && (
-        <div className="mt-4">
+        <div className="mt-4 text-center">
           <img
             src={preview}
             alt="Preview"
