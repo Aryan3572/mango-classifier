@@ -11,6 +11,8 @@ app = Flask(__name__)
 # -------------------
 # Environment Variables
 # -------------------
+
+
 FRONTEND_ORIGIN = os.environ.get(
     "FRONTEND_ORIGIN", "https://mango-classifier-3.onrender.com"
 )
@@ -20,6 +22,8 @@ CLASSES_PATH = os.environ.get("CLASSES_PATH", "classes.json")
 # -------------------
 # Enable CORS
 # -------------------
+
+
 CORS(app, origins=FRONTEND_ORIGIN)
 app.logger.info(f"✅ CORS enabled for: {FRONTEND_ORIGIN}")
 
@@ -41,7 +45,7 @@ try:
         classes = json.load(f)
     app.logger.info(f"✅ Classes loaded from {CLASSES_PATH}")
 except Exception as e:
-    classes = {}
+    classes = []
     app.logger.warning(f"⚠️ Failed to load classes: {e}")
 
 # -------------------
@@ -70,7 +74,13 @@ def predict():
 
         preds = model.predict(img_array)
         idx = int(np.argmax(preds))
-        label = classes.get(str(idx), str(idx))
+
+        # ✅ Handle classes as list or dict
+        if isinstance(classes, list):
+            label = classes[idx] if idx < len(classes) else str(idx)
+        else:
+            label = classes.get(str(idx), str(idx))
+
         confidence = float(np.max(preds))
 
         result = {
