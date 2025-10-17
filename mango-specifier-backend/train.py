@@ -1,7 +1,11 @@
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
-from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2, preprocess_input
+from tensorflow.keras.applications.mobilenet_v2 import (
+    MobileNetV2,
+    preprocess_input,
+)
+
 import json
 import os
 
