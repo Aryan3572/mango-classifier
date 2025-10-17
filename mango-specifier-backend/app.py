@@ -5,7 +5,6 @@ from flask_cors import CORS
 from PIL import Image
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 
 
 app = Flask(__name__)
@@ -16,7 +15,7 @@ app = Flask(__name__)
 FRONTEND_ORIGIN = os.environ.get(
     "FRONTEND_ORIGIN", "https://mango-classifier-3.onrender.com"
 )
-MODEL_PATH = os.environ.get("MODEL_PATH", "final_model.h5")
+MODEL_PATH = os.environ.get("MODEL_PATH", "final_model.keras")
 CLASSES_PATH = os.environ.get("CLASSES_PATH", "classes.json")
 
 # -------------------
@@ -67,8 +66,11 @@ def predict():
         # Preprocess image (match training)
         # -------------------
         image = Image.open(file.stream).convert("RGB").resize((224, 224))
-        img_array = np.expand_dims(np.array(image), axis=0)
-        img_array = preprocess_input(img_array)
+        img_array = np.array(image)
+        img_array = np.expand_dims(img_array, axis=0)
+        img_array = tf.keras.applications.mobilenet_v2.preprocess_input(
+         img_array
+        )
 
         if model is None:
             return jsonify({"error": "Model not loaded"}), 500
