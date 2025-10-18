@@ -1,14 +1,21 @@
+import os
 import keras
 from keras import layers
 from keras.applications.mobilenet_v2 import MobileNetV2, preprocess_input
 import tensorflow as tf
 import json
-import os
+
+# -------------------
+# Disable GPU (for Render / CPU-only training)
+# -------------------
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+
 
 # -------------------
 # Paths and settings
 # -------------------
-DATA_DIR = os.path.join("dataset")
+DATA_DIR = "dataset"  # assumes dataset/train and dataset/val
 IMG_SIZE = (224, 224)
 BATCH_SIZE = 32
 EPOCHS = 25
@@ -53,7 +60,7 @@ data_augmentation = keras.Sequential([
     layers.RandomFlip("horizontal"),
     layers.RandomRotation(0.1),
     layers.RandomZoom(0.1),
-])
+], name="data_augmentation")
 
 # -------------------
 # Base model (MobileNetV2)
@@ -64,6 +71,7 @@ base_model = MobileNetV2(
     weights="imagenet"
 )
 
+# Fine-tune only top layers
 base_model.trainable = True
 fine_tune_at = 100
 for layer in base_model.layers[:fine_tune_at]:
@@ -80,7 +88,7 @@ x = layers.GlobalAveragePooling2D()(x)
 x = layers.Dropout(0.3)(x)
 outputs = layers.Dense(len(class_names), activation="softmax")(x)
 
-model = keras.Model(inputs, outputs)
+model = keras.Model(inputs, outputs, name="mango_classifier")
 
 # -------------------
 # Compile
@@ -96,7 +104,7 @@ model.compile(
 # -------------------
 callbacks = [
     keras.callbacks.ModelCheckpoint(
-        "final_model.keras",
+        filepath="final_model.keras",
         save_best_only=True,
         monitor="val_accuracy",
         mode="max",

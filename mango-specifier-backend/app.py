@@ -1,4 +1,5 @@
 import os
+
 import json
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -6,9 +7,11 @@ from PIL import Image
 import numpy as np
 import tensorflow as tf
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # disable GPU on Render
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"   # suppress TensorFlow warnings
-
+# -------------------
+# Disable GPU and silence TensorFlow logs (Render has no GPU)
+# -------------------
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 app = Flask(__name__)
 
@@ -16,31 +19,26 @@ app = Flask(__name__)
 # Environment Variables
 # -------------------
 FRONTEND_ORIGIN = os.environ.get(
-    "FRONTEND_ORIGIN", "https://mango-classifier-3.onrender.com")
+    "FRONTEND_ORIGIN", "https://mango-classifier-3.onrender.com"
+)
 MODEL_PATH = os.environ.get("MODEL_PATH", "final_model.keras")
 CLASSES_PATH = os.environ.get("CLASSES_PATH", "classes.json")
 
 # -------------------
 # Enable CORS
 # -------------------
-CORS(app, origins=FRONTEND_ORIGIN)
+CORS(app, origins=[FRONTEND_ORIGIN])
 app.logger.info(f"✅ CORS enabled for: {FRONTEND_ORIGIN}")
 
 # -------------------
-# Load Model (with fallback)
+# Load Model
 # -------------------
 model = None
 try:
     if not os.path.exists(MODEL_PATH):
-        alt_path = MODEL_PATH.replace(".keras", ".h5")
-        if os.path.exists(alt_path):
-            MODEL_PATH = alt_path
-            app.logger.warning(f"⚠️ Using fallback model file: {MODEL_PATH}")
-        else:
-            raise FileNotFoundError(
-                f"No model file found at {MODEL_PATH} or {alt_path}")
+        raise FileNotFoundError(f"Model not found at {MODEL_PATH}")
 
-    model = tf.keras.models.load_model(MODEL_PATH)
+    model = tf.keras.models.load_model(MODEL_PATH, compile=False)
     app.logger.info(f"✅ Model loaded successfully from {MODEL_PATH}")
 except Exception as e:
     app.logger.error(f"❌ Failed to load model: {e}")
@@ -73,11 +71,11 @@ def predict():
     if "file" not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
 
-    file = request.files["file"]
     if model is None:
         return jsonify({"error": "Model not loaded"}), 500
 
     try:
+        file = request.files["file"]
         # -------------------
         # Preprocess image
         # -------------------
@@ -94,13 +92,10 @@ def predict():
         confidence = float(np.max(preds))
 
         # Handle both list and dict formats for classes
-        label = (
-            classes[idx]
-            if isinstance(classes, list) and idx < len(classes)
-            else classes.get(str(idx), f"Class {idx}")
-            if isinstance(classes, dict)
-            else f"Class {idx}"
-        )
+        if isinstance(classes, list):
+            label = classes[idx] if idx < len(classes) else f"Class {idx}"
+        else:
+            label = classes.get(str(idx), f"Class {idx}")
 
         result = {
             "mangoType": label,
