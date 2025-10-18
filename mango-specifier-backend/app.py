@@ -6,6 +6,10 @@ from PIL import Image
 import numpy as np
 import tensorflow as tf
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # disable GPU on Render
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"   # suppress TensorFlow warnings
+
+
 app = Flask(__name__)
 
 # -------------------
