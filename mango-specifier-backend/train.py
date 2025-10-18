@@ -1,18 +1,14 @@
+import keras
+from keras import layers
+from keras.applications.mobilenet_v2 import MobileNetV2, preprocess_input
 import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
-from tensorflow.keras.applications.mobilenet_v2 import (
-    MobileNetV2,
-    preprocess_input,
-)
-
 import json
 import os
 
 # -------------------
 # Paths and settings
 # -------------------
-DATA_DIR = os.path.join("dataset")  # <-- updated relative path
+DATA_DIR = os.path.join("dataset")
 IMG_SIZE = (224, 224)
 BATCH_SIZE = 32
 EPOCHS = 25
@@ -21,14 +17,14 @@ AUTOTUNE = tf.data.AUTOTUNE
 # -------------------
 # Load datasets
 # -------------------
-train_ds = tf.keras.utils.image_dataset_from_directory(
+train_ds = keras.utils.image_dataset_from_directory(
     os.path.join(DATA_DIR, "train"),
     image_size=IMG_SIZE,
     batch_size=BATCH_SIZE,
     seed=123
 )
 
-val_ds = tf.keras.utils.image_dataset_from_directory(
+val_ds = keras.utils.image_dataset_from_directory(
     os.path.join(DATA_DIR, "val"),
     image_size=IMG_SIZE,
     batch_size=BATCH_SIZE,
@@ -68,7 +64,6 @@ base_model = MobileNetV2(
     weights="imagenet"
 )
 
-# Fine-tune only top layers
 base_model.trainable = True
 fine_tune_at = 100
 for layer in base_model.layers[:fine_tune_at]:
