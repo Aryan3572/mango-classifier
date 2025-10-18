@@ -96,7 +96,7 @@ model.compile(
 # -------------------
 callbacks = [
     keras.callbacks.ModelCheckpoint(
-        "best_model.h5",
+        "final_model.keras",
         save_best_only=True,
         monitor="val_accuracy",
         mode="max",
