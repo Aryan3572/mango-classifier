@@ -3,12 +3,12 @@ import os
 # -------------------
 # Dataset Path
 # -------------------
-BASE_DIR = "Image dataset (2)/Image dataset"
+BASE_DIR = "dataset/train"
 
 if not os.path.exists(BASE_DIR):
     raise SystemExit(
         f"Dataset folder not found: {BASE_DIR}. "
-        "Please put images under 'Image dataset (2)/Image dataset'"
+        "Please put images under 'college/dataset/train'"
     )
 
 # -------------------

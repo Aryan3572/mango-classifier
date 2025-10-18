@@ -12,7 +12,7 @@ import os
 # -------------------
 # Paths and settings
 # -------------------
-DATA_DIR = os.path.join("..", "dataset")  # <-- updated relative path
+DATA_DIR = os.path.join("dataset")  # <-- updated relative path
 IMG_SIZE = (224, 224)
 BATCH_SIZE = 32
 EPOCHS = 25
