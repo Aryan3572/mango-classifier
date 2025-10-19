@@ -1,11 +1,11 @@
 import os
-
 import json
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from PIL import Image
 import numpy as np
 import tensorflow as tf
+from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 
 # -------------------
 # Disable GPU and silence TensorFlow logs (Render has no GPU)
@@ -76,13 +76,13 @@ def predict():
 
     try:
         file = request.files["file"]
+
         # -------------------
         # Preprocess image
         # -------------------
         image = Image.open(file.stream).convert("RGB").resize((224, 224))
         img_array = np.expand_dims(np.array(image), axis=0)
-        img_array = tf.keras.applications.mobilenet_v2.preprocess_input
-        (img_array)
+        img_array = preprocess_input(img_array)  # ✅ fixed function call
 
         # -------------------
         # Prediction
