@@ -5,7 +5,7 @@ from flask_cors import CORS
 from PIL import Image
 import numpy as np
 import tensorflow as tf
-from   import preprocess_input
+from tensorflow import preprocess_input
 
 # ------------------- Disable GPU & reduce TF logs -------------------
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
