@@ -1,7 +1,6 @@
 import { useState } from "react";
 
-const BASE =
-  import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+const BASE = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 const BACKEND_URL = `${BASE.replace(/\/$/, "")}/predict`;
 
 export default function UploadArea({ onResult }) {
@@ -9,7 +8,7 @@ export default function UploadArea({ onResult }) {
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  console.log("🔗 Using backend URL:", BACKEND_URL); // helpful in Vercel logs
+  console.log("🔗 Using backend URL:", BACKEND_URL);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
