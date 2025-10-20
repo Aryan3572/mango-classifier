@@ -1,25 +1,15 @@
 import os
 
-# -------------------
-# Dataset Path
-# -------------------
 BASE_DIR = "dataset/train"
-
 if not os.path.exists(BASE_DIR):
-    raise SystemExit(
-        f"Dataset folder not found: {BASE_DIR}. "
-        "Please put images under 'college/dataset/train'"
-    )
+    raise SystemExit(f"Dataset folder not found: {BASE_DIR}")
 
-# -------------------
-# List Classes
-# -------------------
 classes = sorted([
     d for d in os.listdir(BASE_DIR)
     if os.path.isdir(os.path.join(BASE_DIR, d))
 ])
 
-print("Found classes:", classes)
+print("✅ Found classes:", classes)
 
 for c in classes:
     class_path = os.path.join(BASE_DIR, c)

@@ -6,16 +6,15 @@ import tensorflow as tf
 import json
 
 # -------------------
-# Disable GPU (for Render / CPU-only training)
+# Disable GPU (for CPU-only servers)
 # -------------------
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
-
 # -------------------
-# Paths and settings
+# Paths and Settings
 # -------------------
-DATA_DIR = "dataset"  # assumes dataset/train and dataset/val
+DATA_DIR = "dataset"  # dataset/train and dataset/val
 IMG_SIZE = (224, 224)
 BATCH_SIZE = 32
 EPOCHS = 25
@@ -44,11 +43,12 @@ val_ds = keras.utils.image_dataset_from_directory(
 class_names = train_ds.class_names
 print("✅ Classes found:", class_names)
 
+# Save classes
 with open("classes.json", "w", encoding="utf8") as f:
     json.dump(class_names, f, ensure_ascii=False, indent=2)
 
 # -------------------
-# Prefetch for performance
+# Prefetch datasets
 # -------------------
 train_ds = train_ds.prefetch(buffer_size=AUTOTUNE)
 val_ds = val_ds.prefetch(buffer_size=AUTOTUNE)
@@ -63,15 +63,13 @@ data_augmentation = keras.Sequential([
 ], name="data_augmentation")
 
 # -------------------
-# Base model (MobileNetV2)
+# Base model
 # -------------------
 base_model = MobileNetV2(
     input_shape=IMG_SIZE + (3,),
     include_top=False,
     weights="imagenet"
 )
-
-# Fine-tune only top layers
 base_model.trainable = True
 fine_tune_at = 100
 for layer in base_model.layers[:fine_tune_at]:

@@ -8,7 +8,7 @@ import tensorflow as tf
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 
 # -------------------
-# Disable GPU and silence TensorFlow logs (Render has no GPU)
+# Disable GPU & reduce TF logs (Render/Heroku is CPU-only)
 # -------------------
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
@@ -19,7 +19,7 @@ app = Flask(__name__)
 # Environment Variables
 # -------------------
 FRONTEND_ORIGIN = os.environ.get(
-    "FRONTEND_ORIGIN", "https://mango-classifier-3.onrender.com"
+    "FRONTEND_ORIGIN", "https://mango-classifier.vercel.app"
 )
 MODEL_PATH = os.environ.get("MODEL_PATH", "final_model.keras")
 CLASSES_PATH = os.environ.get("CLASSES_PATH", "classes.json")
@@ -54,11 +54,10 @@ except Exception as e:
     classes = []
     app.logger.warning(f"⚠️ Failed to load classes: {e}")
 
+
 # -------------------
 # Routes
 # -------------------
-
-
 @app.route("/health", methods=["GET"])
 def health():
     """Health check route."""
@@ -82,7 +81,7 @@ def predict():
         # -------------------
         image = Image.open(file.stream).convert("RGB").resize((224, 224))
         img_array = np.expand_dims(np.array(image), axis=0)
-        img_array = preprocess_input(img_array)  # ✅ fixed function call
+        img_array = preprocess_input(img_array)
 
         # -------------------
         # Prediction
@@ -91,7 +90,7 @@ def predict():
         idx = int(np.argmax(preds))
         confidence = float(np.max(preds))
 
-        # Handle both list and dict formats for classes
+        # Handle classes (list or dict)
         if isinstance(classes, list):
             label = classes[idx] if idx < len(classes) else f"Class {idx}"
         else:
