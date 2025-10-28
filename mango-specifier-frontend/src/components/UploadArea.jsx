@@ -1,90 +1,149 @@
-import { useState } from "react";
+import React, { useState, useRef } from "react";
+import "./UploadArea.css";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
 
-const BASE = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
-const BACKEND_URL = `${BASE.replace(/\/$/, "")}/predict`;
-
-export default function UploadArea({ onResult }) {
+function UploadArea({ title }) {
   const [selectedFile, setSelectedFile] = useState(null);
-  const [preview, setPreview] = useState(null);
+  const [preview, setPreview] = useState("");
+  const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  console.log("🔗 Using backend URL:", BACKEND_URL);
+  const resultRef = useRef(null);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    setSelectedFile(file);
-    if (file) setPreview(URL.createObjectURL(file));
+    if (file) {
+      setSelectedFile(file);
+      setPreview(URL.createObjectURL(file));
+      setResult(null);
+    }
   };
 
-  const handleUpload = async () => {
-    if (!selectedFile) return alert("Please select a file first!");
+  const handleReupload = () => {
+    setSelectedFile(null);
+    setPreview("");
+    setResult(null);
+  };
+
+  const handlePredict = async () => {
+    if (!selectedFile) {
+      alert("Please upload a mango image first!");
+      return;
+    }
 
     const formData = new FormData();
     formData.append("file", selectedFile);
 
-    try {
-      setLoading(true);
-      const res = await fetch(BACKEND_URL, { method: "POST", body: formData });
-      if (!res.ok) {
-        const text = await res.text();
-        console.error("Server returned non-OK:", res.status, text);
-        throw new Error(`Prediction failed: ${res.status}`);
-      }
-      const data = await res.json();
+    setLoading(true);
+    setResult(null);
 
-      onResult({
-        ...data,
-        fileName: selectedFile.name,
-        image: preview,
+    try {
+      const response = await fetch("http://localhost:5000/predict", {
+        method: "POST",
+        body: formData,
       });
-    } catch (err) {
-      console.error("Upload error:", err);
-      alert(
-        "❌ Could not connect to backend or prediction failed. Check console and backend logs."
-      );
+
+      if (!response.ok) throw new Error("Server error");
+
+      const data = await response.json();
+
+      setResult({
+        prediction: data.predicted_class || "Unknown Mango",
+        confidence: data.confidence
+          ? `${parseFloat(data.confidence).toFixed(2)}%`
+          : "N/A",
+        topPredictions: data.top_predictions || [],
+      });
+
+      setTimeout(() => {
+        resultRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 300);
+    } catch (error) {
+      console.error("Error predicting mango:", error);
+      setResult({
+        prediction: "Error identifying mango",
+        confidence: null,
+        topPredictions: [],
+      });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center gap-5 p-8 border-2 border-dashed rounded-3xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-2xl transition-all duration-300 w-full max-w-lg mx-auto">
-      <label className="w-full text-sm font-medium text-gray-700 dark:text-gray-300 text-center">
-        Choose an image of a mango 🍋
-      </label>
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handleFileChange}
-        className="block w-full text-sm text-gray-700 dark:text-gray-300 
-          file:mr-4 file:py-2 file:px-5 file:rounded-lg file:border-0 
-          file:text-sm file:font-semibold 
-          file:bg-gradient-to-r file:from-yellow-400 file:to-orange-500 file:text-white 
-          hover:file:scale-105 transform transition-all duration-300"
-      />
+    <div className="upload-box fade-in">
+      <h2 className="upload-title">{title}</h2>
 
-      {preview && (
-        <div className="mt-4">
-          <img
-            src={preview}
-            alt="Preview"
-            className="w-48 h-48 mx-auto rounded-xl border shadow-lg hover:shadow-2xl hover:scale-105 transition-transform duration-300"
-          />
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-            {selectedFile?.name}
+      {!preview ? (
+        <div className="upload-zone">
+          <p className="upload-text">
+            <span className="highlight">Drag & drop</span> a mango image
+            <br /> or click below to browse
           </p>
+          <label htmlFor={`fileInput-${title}`} className="file-label">
+            Choose Image
+          </label>
+          <input
+            type="file"
+            id={`fileInput-${title}`}
+            accept="image/*"
+            onChange={handleFileChange}
+          />
+        </div>
+      ) : (
+        <div className="preview-area">
+          <img src={preview} alt="preview" className="preview" />
+          <div className="btn-group">
+            <button onClick={handlePredict} disabled={loading} className="btn">
+              {loading ? <div className="spinner"></div> : "Identify Mango"}
+            </button>
+            <button onClick={handleReupload} className="btn reupload">
+              Re-upload
+            </button>
+          </div>
         </div>
       )}
 
-      <button
-        onClick={handleUpload}
-        disabled={loading}
-        className="px-8 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 
-          text-white rounded-xl shadow-lg hover:shadow-2xl hover:scale-105 
-          transform transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed mt-4"
-      >
-        {loading ? "🔄 Predicting..." : "Upload & Predict"}
-      </button>
+      {result && (
+        <div className="result-card" ref={resultRef}>
+          <h3 className="result-title">🥭 {result.prediction}</h3>
+          {result.confidence && (
+            <p className="result-confidence">
+              Confidence: <span>{result.confidence}</span>
+            </p>
+          )}
+
+          {/* Confidence Breakdown Chart */}
+          {result.topPredictions && result.topPredictions.length > 0 && (
+            <div className="chart-section">
+              <h3>Confidence Breakdown</h3>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart
+                  data={result.topPredictions}
+                  margin={{ top: 10, right: 20, left: 0, bottom: 10 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="label" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="confidence" fill="#ffb300" barSize={50} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
+
+export default UploadArea;

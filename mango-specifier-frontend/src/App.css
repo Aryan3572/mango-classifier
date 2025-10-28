@@ -1,31 +1,124 @@
-/* 🍋 Mango Specifier – Custom Base Styles */
-
-/* Keep root centered but minimal since Tailwind handles layout */
-#root {
-  @apply flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-gray-900 dark:to-gray-800 transition-all duration-700;
+/* 🌿 Global Layout */
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  background: #fdfdfd;
+  color: #2c3e50;
 }
 
-/* Remove old unused Vite styles */
-.logo, .card, .read-the-docs {
-  @apply hidden;
+/* 🌼 App Container */
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  text-align: center;
+  padding: 20px;
 }
 
-/* Subtle glow for main header */
-.mango-title {
-  @apply text-4xl font-extrabold bg-gradient-to-r from-yellow-500 to-orange-600 bg-clip-text text-transparent drop-shadow-lg animate-pulse;
+/* 🍋 Header */
+.header {
+  margin-bottom: 30px;
+  animation: fadeIn 1s ease;
 }
 
-/* File input button styling (backup if Tailwind class fails) */
-input[type="file"]::file-selector-button {
-  @apply bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-semibold px-4 py-2 rounded-lg cursor-pointer transition-all duration-300 hover:scale-105;
+.main-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #388e3c;
+  margin-bottom: 8px;
 }
 
-/* Smooth transitions for light/dark mode toggle */
-button {
-  @apply transition-all duration-300 ease-in-out;
+.subtitle {
+  color: #555;
+  font-size: 1rem;
 }
 
-/* Shadow hover effects */
-.hover-glow {
-  @apply hover:shadow-2xl hover:scale-105 transform transition-all duration-300;
+/* 🌸 Upload Grid */
+.upload-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+  width: 100%;
+  max-width: 1100px;
+  margin: 20px auto;
 }
+
+/* 🌿 Footer */
+.footer {
+  margin-top: 40px;
+  font-size: 0.9rem;
+  color: #777;
+}
+
+.highlight {
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+/* ✨ Animations */
+.fade-in {
+  animation: fadeIn 0.8s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* 📊 Model Performance Dashboard */
+.metrics-dashboard {
+  margin-top: 50px;
+  padding: 25px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(56, 142, 60, 0.1);
+  max-width: 1000px;
+  width: 90%;
+  text-align: center;
+}
+
+.metrics-title {
+  color: #2e7d32;
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+.metric-card {
+  background: #f9fff9;
+  border: 2px solid #c8e6c9;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 3px 10px rgba(76, 175, 80, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 18px rgba(56, 142, 60, 0.15);
+}
+
+.metric-card h3 {
+  color: #388e3c;
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.metric-card p {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #2e7d32;
+}
+
