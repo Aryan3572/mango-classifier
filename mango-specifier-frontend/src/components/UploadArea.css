@@ -165,3 +165,12 @@ input[type="file"] {
   text-align: center;
 }
 
+/* src/components/UploadArea.css */
+.uploader .upload-graphic{display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+.upload-title{font-weight:700;margin-bottom:6px}
+.upload-sub{color:var(--muted);font-size:13px}
+.preview-wrap{display:flex;flex-direction:column;gap:10px;align-items:center}
+.preview-img{width:100%;max-height:220px;object-fit:cover;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+.preview-actions{display:flex;gap:8px}
+.btn.small{padding:8px 10px;border-radius:8px;font-weight:700;border:0}
+.btn.small.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04)}

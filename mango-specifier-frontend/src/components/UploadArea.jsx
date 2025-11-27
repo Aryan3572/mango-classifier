@@ -1,149 +1,62 @@
+// src/components/UploadArea.jsx
 import React, { useState, useRef } from "react";
 import "./UploadArea.css";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from "recharts";
 
-function UploadArea({ title }) {
-  const [selectedFile, setSelectedFile] = useState(null);
+export default function UploadArea({ title, onFileSelected }) {
+  const [dragOver, setDragOver] = useState(false);
   const [preview, setPreview] = useState("");
-  const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const resultRef = useRef(null);
+  const fileRef = useRef();
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedFile(file);
-      setPreview(URL.createObjectURL(file));
-      setResult(null);
-    }
-  };
-
-  const handleReupload = () => {
-    setSelectedFile(null);
-    setPreview("");
-    setResult(null);
-  };
-
-  const handlePredict = async () => {
-    if (!selectedFile) {
-      alert("Please upload a mango image first!");
+  const handleFile = (file) => {
+    if (!file) {
+      setPreview("");
+      if (typeof onFileSelected === "function") onFileSelected(null);
       return;
     }
+    setPreview(URL.createObjectURL(file));
+    if (typeof onFileSelected === "function") onFileSelected(file);
+  };
 
-    const formData = new FormData();
-    formData.append("file", selectedFile);
+  const onInputChange = (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (f) handleFile(f);
+  };
 
-    setLoading(true);
-    setResult(null);
-
-    try {
-      const response = await fetch("http://localhost:5000/predict", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) throw new Error("Server error");
-
-      const data = await response.json();
-
-      setResult({
-        prediction: data.predicted_class || "Unknown Mango",
-        confidence: data.confidence
-          ? `${parseFloat(data.confidence).toFixed(2)}%`
-          : "N/A",
-        topPredictions: data.top_predictions || [],
-      });
-
-      setTimeout(() => {
-        resultRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 300);
-    } catch (error) {
-      console.error("Error predicting mango:", error);
-      setResult({
-        prediction: "Error identifying mango",
-        confidence: null,
-        topPredictions: [],
-      });
-    } finally {
-      setLoading(false);
-    }
+  const onDrop = (e) => {
+    e.preventDefault();
+    setDragOver(false);
+    const f = e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f) handleFile(f);
   };
 
   return (
-    <div className="upload-box fade-in">
-      <h2 className="upload-title">{title}</h2>
-
-      {!preview ? (
-        <div className="upload-zone">
-          <p className="upload-text">
-            <span className="highlight">Drag & drop</span> a mango image
-            <br /> or click below to browse
-          </p>
-          <label htmlFor={`fileInput-${title}`} className="file-label">
-            Choose Image
-          </label>
-          <input
-            type="file"
-            id={`fileInput-${title}`}
-            accept="image/*"
-            onChange={handleFileChange}
-          />
-        </div>
-      ) : (
-        <div className="preview-area">
-          <img src={preview} alt="preview" className="preview" />
-          <div className="btn-group">
-            <button onClick={handlePredict} disabled={loading} className="btn">
-              {loading ? <div className="spinner"></div> : "Identify Mango"}
-            </button>
-            <button onClick={handleReupload} className="btn reupload">
-              Re-upload
-            </button>
-          </div>
-        </div>
-      )}
-
-      {result && (
-        <div className="result-card" ref={resultRef}>
-          <h3 className="result-title">🥭 {result.prediction}</h3>
-          {result.confidence && (
-            <p className="result-confidence">
-              Confidence: <span>{result.confidence}</span>
-            </p>
-          )}
-
-          {/* Confidence Breakdown Chart */}
-          {result.topPredictions && result.topPredictions.length > 0 && (
-            <div className="chart-section">
-              <h3>Confidence Breakdown</h3>
-              <ResponsiveContainer width="100%" height={250}>
-                <BarChart
-                  data={result.topPredictions}
-                  margin={{ top: 10, right: 20, left: 0, bottom: 10 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="label" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="confidence" fill="#ffb300" barSize={50} />
-                </BarChart>
-              </ResponsiveContainer>
+    <div
+      className={`uploader ${dragOver ? "drag" : ""}`}
+      onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+      onDragLeave={() => setDragOver(false)}
+      onDrop={onDrop}
+    >
+      <label className="uploader-inner">
+        {!preview ? (
+          <>
+            <div className="upload-graphic" aria-hidden>
+              <svg width="44" height="44" viewBox="0 0 24 24" fill="none"><path d="M12 3v12" stroke="currentColor" strokeWidth="1.5"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" strokeWidth="1.5"/><path d="M7 9l5-6 5 6" stroke="currentColor" strokeWidth="1.5"/></svg>
             </div>
-          )}
-        </div>
-      )}
+            <div className="upload-title">{title}</div>
+            <div className="upload-sub muted">Drag & drop or click to upload an image</div>
+            <input ref={fileRef} type="file" accept="image/*" onChange={onInputChange} />
+          </>
+        ) : (
+          <div className="preview-wrap">
+            <img src={preview} alt="preview" className="preview-img" />
+            <div className="preview-actions">
+              <button className="btn small" onClick={() => fileRef.current && fileRef.current.click()}>Replace</button>
+              <button className="btn small ghost" onClick={() => handleFile(null)}>Remove</button>
+            </div>
+            <input ref={fileRef} type="file" accept="image/*" onChange={onInputChange} />
+          </div>
+        )}
+      </label>
     </div>
   );
 }
-
-export default UploadArea;

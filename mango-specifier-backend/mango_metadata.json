@@ -1,0 +1,117 @@
+{
+  "alphonso": {
+    "name": "Alphonso (Hapus)",
+    "origin": "Konkan coast — Ratnagiri, Sindhudurg, Devgad (Maharashtra, India)",
+    "regions": ["Ratnagiri (MH)", "Sindhudurg (MH)", "Devgad (MH)", "Goa", "Karnataka"],
+    "avg_weight_g": "200–300",
+    "avg_size_cm": "10–12 cm length, 6–8 cm width",
+    "avg_brix": "18–22 °Brix",
+    "season": "May–June",
+    "growing_temp": "24–30 °C",
+    "ripening_temp": "20–30 °C",
+    "demand_value": "Strong domestic and international demand; premium pricing in EU, UK, US, Middle East.",
+    "demand_score": 9.8,
+    "export_info": "Premium export mango; exported to EU, UK, USA, Middle East.",
+    "export_sources": [
+      {"label": "APEDA Mango portal & dashboards", "url": "https://apeda.gov.in/Mango"},
+      {"label": "APEDA Mango brochure (GI Mangoes)", "url": "https://apeda.gov.in/sites/default/files/files_universal_page/2024-05/Mango_brochure.pdf"},
+      {"label": "NHB Alphonso notes", "url": "https://nhb.gov.in/pdf/fruits/mango/man013.pdf"}
+    ]
+  },
+
+"anwar_ratol": {
+  "name": "Anwar Ratol",
+  "origin": "Rataul, Uttar Pradesh (India)",
+  "regions": ["Rataul (UP)", "Punjab (India/Pakistan)", "Sindh (Pakistan)"],
+  "avg_weight_g": "80–180 g",
+  "avg_size_cm": "7–10 cm (small round–oval)",
+  "avg_brix": "16–22 °Brix",
+  "season": "May–June",
+  "growing_temp": "24–32 °C",
+  "ripening_temp": "20–30 °C",
+  "demand_value": "Very high demand in India–Pakistan border regions; premium price per kg.",
+  "demand_score": 9,
+  "export_info": "Limited export; high regional demand makes it sold mostly locally.",
+  "export_sources": [
+    { "label": "Anwar Ratol Overview", "url": "https://en.wikipedia.org/wiki/Anwar_Ratol" },
+    { "label": "APEDA Mango portal", "url": "https://apeda.gov.in/Mango" }
+  ]
+},
+
+
+  "chaunsa": {
+  "name": "Chaunsa",
+  "origin": "South Asia — major production in Uttar Pradesh, Bihar (India) and Punjab/Multan (Pakistan)",
+  "regions": ["Uttar Pradesh", "Bihar", "Punjab (Pakistan)", "Multan (Pakistan)"],
+  "avg_weight_g": "150–350 g",
+  "avg_size_cm": "10–14 cm (medium-long oval)",
+  "avg_brix": "15–21 °Brix",
+  "season": "June–July",
+  "growing_temp": "24–32 °C",
+  "ripening_temp": "20–30 °C",
+  "demand_value": "High export demand, especially in Middle East for aroma + sweetness.",
+  "demand_score": 9,
+  "export_info": "Widely exported to Middle East, Europe; prized for strong aroma and sweetness.",
+  "export_sources": [
+    { "label": "Research: harvest maturity for Chaunsa", "url": "https://www.researchgate.net/publication/260121947_Fruit_Harvest_Maturity_Indicators" },
+    { "label": "APEDA Mango portal", "url": "https://apeda.gov.in/Mango" }
+  ]
+},
+
+ "dasheri": {
+  "name": "Dasheri (Dussehri)",
+  "origin": "Malihabad (Lucknow district), Uttar Pradesh, India",
+  "regions": ["Malihabad (UP)", "Lucknow region (UP)", "Northern India"],
+  "avg_weight_g": "150–300 g",
+  "avg_size_cm": "9–12 cm (slender long shape)",
+  "avg_brix": "14–20 °Brix",
+  "season": "May–July",
+  "growing_temp": "24–32 °C",
+  "ripening_temp": "20–30 °C",
+  "demand_value": "Strong domestic demand; one of India’s highest-selling table varieties.",
+  "demand_score": 8,
+  "export_info": "Malihabadi Dasheri (GI tagged) exported in small volumes to Gulf countries.",
+  "export_sources": [
+    { "label": "NHB Lucknow / Dashehari brochure", "url": "https://nhb.gov.in/pdf/LucknowBrochure.pdf" },
+    { "label": "APEDA Mango portal", "url": "https://apeda.gov.in/Mango" }
+  ]
+},
+
+  "langra": {
+    "name": "Langra (Benarasi Langra)",
+    "origin": "Varanasi (UP), India",
+    "regions": ["Varanasi (UP)", "Bihar", "West Bengal"],
+    "avg_weight_g": "150–300",
+    "avg_size_cm": "10–12 cm length",
+    "avg_brix": "12–18 °Brix",
+    "season": "Mid-June to Late July",
+    "growing_temp": "24–32 °C",
+    "ripening_temp": "20–30 °C",
+    "demand_value": "Very strong domestic demand; limited export due to soft pulp.",
+    "demand_score": 8.3,
+    "export_info": "Mostly domestic with some neighboring country exports.",
+    "export_sources": [
+      {"label": "Langra Wikipedia", "url": "https://en.wikipedia.org/wiki/Langra"},
+      {"label": "NHB Mango pages", "url": "https://nhb.gov.in/report_files/mango/mango.htm"}
+    ]
+  },
+
+  "sindhri": {
+    "name": "Sindhri",
+    "origin": "Mirpurkhas / Sindh (Pakistan)",
+    "regions": ["Mirpurkhas (Sindh)", "Sindh Province"],
+    "avg_weight_g": "250–450",
+    "avg_size_cm": "12–15 cm length",
+    "avg_brix": "9–21 °Brix",
+    "season": "May–June",
+    "growing_temp": "24–34 °C",
+    "ripening_temp": "20–30 °C",
+    "demand_value": "Very high demand in Middle East & South Asia; major Pakistani export.",
+    "demand_score": 9.3,
+    "export_info": "Major export mango to Middle East, Europe and SE Asia.",
+    "export_sources": [
+      {"label": "TDAP Sindhri Spec", "url": "https://tdap.gov.pk/sindhri-mango/"},
+      {"label": "APEDA Mango portal", "url": "https://apeda.gov.in/Mango"}
+    ]
+  }
+}
