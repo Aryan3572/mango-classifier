@@ -21,9 +21,12 @@ export default function HomePage() {
   const [results, setResults] = useState([null, null, null]);
   const [metadata, setMetadata] = useState([null, null, null]);
   const [metrics, setMetrics] = useState(null);
+
+  // ✅ NEW – statistical analysis state
+  const [classStats, setClassStats] = useState(null);
+
   const API_BASE = "http://localhost:5000";
 
-  // UTF fix helper
   const fixText = (str) => {
     if (str === null || str === undefined) return "Not available";
     if (typeof str !== "string") return str;
@@ -38,11 +41,18 @@ export default function HomePage() {
       .replace(/Â/g, "");
   };
 
-  // fetch metrics (optional)
   useEffect(() => {
     fetch(`${API_BASE}/metrics`)
       .then((r) => r.json())
       .then((d) => setMetrics(d))
+      .catch(() => {});
+  }, []);
+
+  // ✅ NEW – load class distribution statistics once
+  useEffect(() => {
+    fetch(`${API_BASE}/stats/class-distribution`)
+      .then((r) => r.json())
+      .then((d) => setClassStats(d))
       .catch(() => {});
   }, []);
 
@@ -82,8 +92,9 @@ export default function HomePage() {
 
       newResults[index] = data;
 
-      // fetch metadata
-      const metaRes = await fetch(`${API_BASE}/variety/${data.normalized_class}`);
+      const metaRes = await fetch(
+        `${API_BASE}/variety/${data.normalized_class}`
+      );
       const raw = await metaRes.text();
       const parsed = parsePossiblyDoubleEncodedJSON(raw) || {};
       newMeta[index] = parsed;
@@ -111,6 +122,15 @@ export default function HomePage() {
       nav("/login");
     }
   };
+
+  // ✅ NEW – chart data for class distribution
+  const classDistChart =
+    classStats?.images_per_class
+      ? Object.entries(classStats.images_per_class).map(([k, v]) => ({
+          label: k,
+          count: v,
+        }))
+      : [];
 
   return (
     <div className="app-root">
@@ -141,11 +161,14 @@ export default function HomePage() {
       <header className="hero">
         <div className="hero-inner">
           <div className="hero-left">
-            <h1 className="hero-title">Mango Specifier — AI-powered Variety & Market Insights</h1>
+            <h1 className="hero-title">
+              Mango Specifier — AI-powered Variety & Market Insights
+            </h1>
 
             <p className="hero-sub">
-              Upload a photo of a mango and instantly identify its variety, size, sweetness,
-              ideal growing & ripening temps, plus export/demand data — backed by horticulture sources.
+              Upload a photo of a mango and instantly identify its variety,
+              size, sweetness, ideal growing & ripening temps, plus export/demand
+              data — backed by horticulture sources.
             </p>
 
             <div className="hero-cta">
@@ -162,8 +185,13 @@ export default function HomePage() {
           <div className="hero-right">
             <div className="hero-card glass">
               <h4>Quick demo</h4>
-              <p className="muted">Drop an image below — results appear with confidence & market value.</p>
-              <UploadArea title="Try a Demo" onFileSelected={(file) => handleFileUpload(file, 0)} />
+              <p className="muted">
+                Drop an image below — results appear with confidence & market value.
+              </p>
+              <UploadArea
+                title="Try a Demo"
+                onFileSelected={(file) => handleFileUpload(file, 0)}
+              />
             </div>
           </div>
         </div>
@@ -172,21 +200,38 @@ export default function HomePage() {
       <main className="main" id="upload">
         <section className="upload-section">
           <h2 className="section-title">Upload Images</h2>
-          <p className="section-sub muted">You can upload up to 3 images. Each will be analyzed individually.</p>
+          <p className="section-sub muted">
+            You can upload up to 3 images. Each will be analyzed individually.
+          </p>
 
           <div className="upload-grid">
             {[0, 1, 2].map((i) => (
               <div key={i} className="upload-column">
-                <UploadArea title={`Image ${i + 1}`} onFileSelected={(file) => handleFileUpload(file, i)} />
+                <UploadArea
+                  title={`Image ${i + 1}`}
+                  onFileSelected={(file) => handleFileUpload(file, i)}
+                />
 
-                {results[i]?.loading && <div className="small-muted">Analyzing image…</div>}
-                {results[i]?.error && <div className="error-text">Error: {results[i].error}</div>}
+                {results[i]?.loading && (
+                  <div className="small-muted">Analyzing image…</div>
+                )}
+                {results[i]?.error && (
+                  <div className="error-text">
+                    Error: {results[i].error}
+                  </div>
+                )}
 
                 {results[i]?.predicted_class && metadata[i] && (
                   <div className="result-card">
                     <div className="result-head">
-                      <h3>{fixText(metadata[i].name || results[i].predicted_class)}</h3>
-                      <div className="conf">{results[i].confidence}%</div>
+                      <h3>
+                        {fixText(
+                          metadata[i].name || results[i].predicted_class
+                        )}
+                      </h3>
+                      <div className="conf">
+                        {results[i].confidence}%
+                      </div>
                     </div>
 
                     <div className="result-grid">
@@ -195,7 +240,11 @@ export default function HomePage() {
                         <div>{fixText(metadata[i].origin)}</div>
 
                         <small className="muted">Regions</small>
-                        <div>{(metadata[i].regions || []).map(fixText).join(", ")}</div>
+                        <div>
+                          {(metadata[i].regions || [])
+                            .map(fixText)
+                            .join(", ")}
+                        </div>
 
                         <small className="muted">Sweetness (°Brix)</small>
                         <div>{fixText(metadata[i].avg_brix)}</div>
@@ -215,16 +264,31 @@ export default function HomePage() {
 
                     <div className="market">
                       <h4>📦 Market Value</h4>
-                      <p className="muted">{fixText(metadata[i].demand_value)}</p>
-                      <p><strong>Demand Score:</strong> {metadata[i].demand_score ?? "N/A"} / 10</p>
-                      <p className="muted"><strong>Export:</strong> {fixText(metadata[i].export_info)}</p>
+                      <p className="muted">
+                        {fixText(metadata[i].demand_value)}
+                      </p>
+                      <p>
+                        <strong>Demand Score:</strong>{" "}
+                        {metadata[i].demand_score ?? "N/A"} / 10
+                      </p>
+                      <p className="muted">
+                        <strong>Export:</strong>{" "}
+                        {fixText(metadata[i].export_info)}
+                      </p>
                     </div>
 
                     <div style={{ marginTop: 12 }}>
                       {getToken() ? (
-                        <button className="btn primary" onClick={() => handleSavePrediction(i)}>Save Result</button>
+                        <button
+                          className="btn primary"
+                          onClick={() => handleSavePrediction(i)}
+                        >
+                          Save Result
+                        </button>
                       ) : (
-                        <Link className="btn ghost" to="/login">Login to Save</Link>
+                        <Link className="btn ghost" to="/login">
+                          Login to Save
+                        </Link>
                       )}
                     </div>
 
@@ -238,9 +302,105 @@ export default function HomePage() {
                             <YAxis />
                             <Tooltip />
                             <Legend />
-                            <Bar dataKey="confidence" fill="#ffb300" barSize={18} />
+                            <Bar
+                              dataKey="confidence"
+                              fill="#ffb300"
+                              barSize={18}
+                            />
                           </BarChart>
                         </ResponsiveContainer>
+                      </div>
+                    )}
+
+                    {/* ✅ DATASET SPECIFICATIONS */}
+                    {results[i]?.dataset_info && (
+                      <div
+                        className="glass"
+                        style={{ marginTop: 14, padding: 12 }}
+                      >
+                        <h4>📊 Dataset Specifications</h4>
+
+                        <table
+                          style={{
+                            width: "100%",
+                            borderCollapse: "collapse",
+                          }}
+                        >
+                          <tbody>
+                            <tr>
+                              <td><strong>Camera model</strong></td>
+                              <td>{results[i].dataset_info.camera_model}</td>
+                            </tr>
+                            <tr>
+                              <td><strong>Capture settings</strong></td>
+                              <td>{results[i].dataset_info.capture_settings}</td>
+                            </tr>
+                            <tr>
+                              <td><strong>Capture environments</strong></td>
+                              <td>{results[i].dataset_info.capture_environments}</td>
+                            </tr>
+                            <tr>
+                              <td><strong>Background</strong></td>
+                              <td>{results[i].dataset_info.background_standardization}</td>
+                            </tr>
+                            <tr>
+                              <td><strong>Capture angles</strong></td>
+                              <td>{results[i].dataset_info.capture_angles}</td>
+                            </tr>
+                            <tr>
+                              <td><strong>Collection location</strong></td>
+                              <td>{results[i].dataset_info.collection_location}</td>
+                            </tr>
+                            <tr>
+                              <td><strong>Season</strong></td>
+                              <td>{results[i].dataset_info.season}</td>
+                            </tr>
+                            <tr>
+                              <td><strong>Collection stage</strong></td>
+                              <td>{results[i].dataset_info.collection_stage}</td>
+                            </tr>
+                            <tr>
+                              <td><strong>Labeling protocol</strong></td>
+                              <td>{results[i].dataset_info.labeling_protocol}</td>
+                            </tr>
+                            <tr>
+                              <td><strong>Total varieties</strong></td>
+                              <td>{results[i].dataset_info.total_varieties}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {/* ✅ STATISTICAL ANALYSIS – CLASS DISTRIBUTION */}
+                    {classStats && (
+                      <div
+                        className="glass"
+                        style={{ marginTop: 16, padding: 12 }}
+                      >
+                        <h4>📈 Dataset Class Distribution</h4>
+
+                        <p className="muted">
+                          Total images: {classStats.total_images} | Classes:{" "}
+                          {classStats.total_classes}
+                        </p>
+
+                        <p className="muted">
+                          Imbalance ratio (max / min):{" "}
+                          {classStats.imbalance_ratio}
+                        </p>
+
+                        <div style={{ width: "100%", height: 220 }}>
+                          <ResponsiveContainer>
+                            <BarChart data={classDistChart}>
+                              <CartesianGrid strokeDasharray="3 3" />
+                              <XAxis dataKey="label" />
+                              <YAxis />
+                              <Tooltip />
+                              <Bar dataKey="count" fill="#66bb6a" />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </div>
                       </div>
                     )}
 
@@ -248,7 +408,15 @@ export default function HomePage() {
                       <h5>Sources</h5>
                       <ul>
                         {(metadata[i].export_sources || []).map((s, idx) => (
-                          <li key={idx}><a href={s.url} target="_blank" rel="noreferrer">{fixText(s.label)}</a></li>
+                          <li key={idx}>
+                            <a
+                              href={s.url}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              {fixText(s.label)}
+                            </a>
+                          </li>
                         ))}
                       </ul>
                     </div>
@@ -263,16 +431,21 @@ export default function HomePage() {
           <div className="about-inner glass">
             <h3>About Mango Specifier</h3>
             <p className="muted">
-              Uses a MobileNet-based model to classify mango varieties. Metadata is collected from NHB, APEDA, and
-              cultivar literature. Save predictions to your account for later reference.
+              Uses a MobileNet-based model to classify mango varieties.
+              Metadata is collected from NHB, APEDA, and cultivar literature.
+              Save predictions to your account for later reference.
             </p>
           </div>
         </section>
       </main>
 
       <footer className="footer">
-        <div>© {new Date().getFullYear()} Mango Specifier · Built by Aryan Raj</div>
-        <div className="muted">Model accuracy: {metrics ? `${metrics.accuracy}%` : "—"}</div>
+        <div>
+          © {new Date().getFullYear()} Mango Specifier · Built by Aryan Raj
+        </div>
+        <div className="muted">
+          Model accuracy: {metrics ? `${metrics.accuracy}%` : "—"}
+        </div>
       </footer>
     </div>
   );
