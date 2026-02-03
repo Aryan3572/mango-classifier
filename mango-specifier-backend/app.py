@@ -13,6 +13,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 import jwt
 from functools import wraps
+from collections import Counter
+
 
 # ---------------------------------------------------
 # CONFIG
@@ -347,12 +349,26 @@ def predict():
         normalized_key = normalize_label_to_key(best_label)
 
         return jsonify(
-            {
-                "predicted_class": best_label,
-                "normalized_class": normalized_key,
-                "confidence": top_preds[0]["confidence"],
-                "top_predictions": top_preds,
-            }
+    {
+        "predicted_class": best_label,
+        "normalized_class": normalized_key,
+        "confidence": top_preds[0]["confidence"],
+        "top_predictions": top_preds,
+
+        # -------- Dataset specifications (Feature-1 for website) --------
+        "dataset_info": {
+            "camera_model": "12MP smartphone camera",
+            "capture_settings": "Auto exposure, natural lighting, handheld capture",
+            "capture_environments": "Daylight, shaded areas and indoor ambient lighting",
+            "background_standardization": "Natural background without strict background standardization",
+            "capture_angles": "Front, side and slightly top-angled views",
+            "collection_location": "Pune, Maharashtra, India",
+            "season": "April–June (mango harvesting season)",
+            "collection_stage": "Market stage",
+            "labeling_protocol": "Images were manually labeled by the authors and verified through visual inspection",
+            "total_varieties": len(metadata)
+        }
+    }
         )
     except Exception as e:
         traceback.print_exc()
@@ -407,6 +423,71 @@ def save_prediction():
         return jsonify({"error": str(e)}), 500
 
     return jsonify({"message": "Prediction saved"}), 201
+
+# ---------------------------------------------------
+# Dataset Specifications
+# ---------------------------------------------------
+
+
+@app.route("/dataset-info", methods=["GET"])
+def dataset_info():
+    data = {
+        "camera_model": "12MP smartphone camera",
+        "capture_settings": "Auto exposure, natural lighting, handheld capture",
+        "capture_environments": "Daylight, shaded areas and indoor ambient lighting",
+        "background_standardization": "Natural background without strict background standardization",
+        "capture_angles": "Front, side and slightly top-angled views",
+        "collection_location": "Pune, Maharashtra, India",   # <-- change if needed
+        "season": "April–June (mango harvesting season)",
+        "collection_stage": "Market stage",
+        "labeling_protocol": "Images were manually labeled by the authors and verified through visual inspection",
+        "total_varieties": len(metadata),
+        "images_per_variety": {
+            k: len(v.get("samples", [])) if isinstance(v, dict) else None
+            for k, v in metadata.items()
+        }
+    }
+
+    return jsonify(data)
+
+# ---------------------------------------------------
+# Statistical analysis – Class distribution
+# ---------------------------------------------------
+
+@app.route("/stats/class-distribution", methods=["GET"])
+def class_distribution():
+    dataset_dir = os.path.join(os.path.dirname(__file__), "dataset")
+
+    if not os.path.exists(dataset_dir):
+        return jsonify({"error": "dataset folder not found"}), 404
+
+    counts = {}
+
+    for cls in sorted(os.listdir(dataset_dir)):
+        cls_path = os.path.join(dataset_dir, cls)
+        if os.path.isdir(cls_path):
+            counts[cls] = len([
+                f for f in os.listdir(cls_path)
+                if os.path.isfile(os.path.join(cls_path, f))
+            ])
+
+    if not counts:
+        return jsonify({"error": "no class folders found"}), 400
+
+    values = list(counts.values())
+    max_count = max(values)
+    min_count = min(values)
+
+    imbalance_ratio = round(max_count / min_count, 3) if min_count > 0 else None
+
+    return jsonify({
+        "total_classes": len(counts),
+        "total_images": sum(values),
+        "images_per_class": counts,
+        "max_class_size": max_count,
+        "min_class_size": min_count,
+        "imbalance_ratio": imbalance_ratio
+    })
 
 
 # ---------------------------------------------------
